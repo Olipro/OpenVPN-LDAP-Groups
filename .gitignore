@@ -1,0 +1,3 @@
+.build
+bin/
+pch/pch.h.*
