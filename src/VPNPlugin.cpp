@@ -13,7 +13,12 @@ int openvpn_plugin_open_v3(const int version, openvpn_plugin_args_open_in const 
 	return openvpn_log(PLOG_ERR, PLUGIN_NAME, "Unexpected struct version"), OPENVPN_PLUGIN_FUNC_ERROR;
     ret->type_mask = OPENVPN_PLUGIN_MASK(OPENVPN_PLUGIN_AUTH_USER_PASS_VERIFY) | OPENVPN_PLUGIN_MASK(OPENVPN_PLUGIN_ENABLE_PF) |
 		     OPENVPN_PLUGIN_MASK(OPENVPN_PLUGIN_CLIENT_CONNECT_V2);
-    ret->handle = (void**)new PluginContext(args->argv[1]);
+    try {
+	ret->handle = (void**)new PluginContext(args->argv[1]);
+    } catch (...) {
+	openvpn_log(PLOG_ERR, PLUGIN_NAME, "Failed initialization due to missing/invalid YAML config");
+	return OPENVPN_PLUGIN_FUNC_ERROR;
+    }
     return OPENVPN_PLUGIN_FUNC_SUCCESS;
 }
 
