@@ -55,17 +55,18 @@ void ClientContext::setPfFile (const char** const args)
 
 bool ClientContext::PopulateAllowedSubnets(LDAPQuerier& querier, LDAPObject& data, ofstream&& pfFile)
 {
+    const auto& settings = pluginCtx.getSettings();
+    
     pfFile << "[CLIENTS DROP]" << endl << "[SUBNETS DROP]" << endl;
     for (auto&& group : data.entries.front().attribs[settings.LDAPgrpAttrib])
     {
 	auto&& result = querier.GetObjects(group, LDAP_SCOPE_BASE, "", { settings.LDAPipAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);
-	if (result.entries.empty() || result.entries.front().attribs.empty())
-	    return OPENVPN_PLUGIN_FUNC_ERROR;
-	for (auto&& ip : result.entries.front().attribs[settings.LDAPipAttrib])
-	    pfFile << "+" << ip << endl, routes.emplace_back(CIDRtoMask(ip));
+	if (!result.entries.empty() && !result.entries.front().attribs.empty())
+	    for (auto&& ip : result.entries.front().attribs[settings.LDAPipAttrib])
+		pfFile << "+" << ip << endl, routes.emplace_back(CIDRtoMask(ip));
     }
     pfFile << "[END]" << endl;
-    return OPENVPN_PLUGIN_FUNC_SUCCESS;
+    return !routes.empty();
 }
 
 const string ClientContext::CIDRtoMask(string ip)
