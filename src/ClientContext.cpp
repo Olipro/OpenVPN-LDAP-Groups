@@ -15,15 +15,16 @@ const unordered_map<string,string> ClientContext::CIDR =
   {"29", "255.255.255.248"}, {"30", "255.255.255.252"}, {"31", "255.255.255.254"}, {"32", "255.255.255.255"}
 };
 
-ClientContext::ClientContext(const PluginContext& pCtx) : settings(pCtx.getSettings()) { }
+ClientContext::ClientContext(const PluginContext& pCtx) : pluginCtx(pCtx) { }
 
 int ClientContext::verifyUser(const char** const args)
 {
     try {
+	const auto& settings = pluginCtx.getSettings();
 	LDAPQuerier querier(settings.LDAPuri, settings.LDAPuserDN, settings.LDAPuserPW);
 	string filter = string(settings.LDAPusrFilter);
 	const string&& username = GetEnv("username", args);
-	openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Verifying user: %s", username.c_str());
+	pluginCtx.openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Verifying user: %s", username.c_str());
 	for (auto u = filter.find("%u"); u != string::npos; u = filter.find("%u"))
 	    filter.replace(u, 2, username);
 	auto&& result = querier.GetObjects(settings.LDAPbaseDN, LDAP_SCOPE_SUBTREE, filter, { settings.LDAPgrpAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);

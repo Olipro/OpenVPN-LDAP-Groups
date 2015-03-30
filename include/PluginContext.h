@@ -10,7 +10,8 @@ public:
 	string LDAPgrpAttrib;
 	string LDAPipAttrib;
     };
-    PluginContext(const string&);
+    plugin_log_t const openvpn_log;
+    PluginContext(const string&, const plugin_log_t);
     const PluginSettings& getSettings() const;
 private:
     PluginSettings settings;

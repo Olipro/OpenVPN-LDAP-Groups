@@ -1,5 +1,3 @@
-extern plugin_log_t openvpn_log;
-
 #pragma GCC visibility push(default)
 
 extern "C" {

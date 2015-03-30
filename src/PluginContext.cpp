@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "PluginContext.h"
 
-PluginContext::PluginContext(const string& file)
+PluginContext::PluginContext(const string& file, plugin_log_t log) : openvpn_log(log)
 {
     YAML::Node cfg = YAML::LoadFile(file)["config"];
     settings = { get(cfg, "LDAPuri"),
