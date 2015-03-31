@@ -11,6 +11,7 @@ PluginContext::PluginContext(const string& file, plugin_log_t log) : openvpn_log
 		 get(cfg, "LDAPusrFilter"),
 		 get(cfg, "LDAPgrpAttrib"),
 		 get(cfg, "LDAPipAttrib"),
+		 cfg["vpnSubnets"].as<vector<string>>(),
 		};
 }
 

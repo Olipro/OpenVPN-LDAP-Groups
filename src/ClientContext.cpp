@@ -58,12 +58,14 @@ bool ClientContext::PopulateAllowedSubnets(LDAPQuerier& querier, LDAPObject& dat
     const auto& settings = pluginCtx.getSettings();
     
     pfFile << "[CLIENTS DROP]" << endl << "[SUBNETS DROP]" << endl;
+    for (auto&& ip : settings.vpnSubnets)
+	pfFile << "+" << ip << endl;
     for (auto&& group : data.entries.front().attribs[settings.LDAPgrpAttrib])
     {
 	auto&& result = querier.GetObjects(group, LDAP_SCOPE_BASE, "", { settings.LDAPipAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);
 	if (!result.entries.empty() && !result.entries.front().attribs.empty())
 	    for (auto&& ip : result.entries.front().attribs[settings.LDAPipAttrib])
-		pfFile << "+" << ip << endl, routes.emplace_back(CIDRtoMask(ip));
+		pfFile << "+" << ip << endl, routes.emplace_back(CIDRtoMask(ip)), pluginCtx.openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Permit subnet: %s", ip.c_str());
     }
     pfFile << "[END]" << endl;
     return !routes.empty();
