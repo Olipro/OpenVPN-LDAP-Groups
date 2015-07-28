@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT(OpenVPNLDAPGroups, 0.1, oliver.d@prodege.com)
+AC_INIT([OpenVPNLDAPGroups],[0.1],[oliver.d@prodege.com])
 : ${CXXFLAGS="-Ofast -flto -Wall"}
 AC_CONFIG_SRCDIR([src/VPNPlugin.cpp])
 AC_CONFIG_HEADERS([include/config.h])

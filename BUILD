@@ -1,5 +1,5 @@
 To build the project, perform the usual steps:
 
-autoreconf -f
+autoreconf -fi
 ./configure
 make && make install

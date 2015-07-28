@@ -12,14 +12,17 @@ m4/lt~obsolete.m4
 *.lo
 *.log
 include/config.*
+include/stamp-*
 Makefile
 Makefile.in
 /config.*
 aclocal.m4
 autom4te.cache/
 configure
+compile
 depcomp
 install-sh
 ltmain.sh
+libtool
 missing
 *.la
