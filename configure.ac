@@ -17,14 +17,16 @@ AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11(, [mandatory])
 AC_PROG_CC
 
-# Checks for libraries.
-AC_SEARCH_LIBS([ldap_initialize], [ldap], , AC_MSG_ERROR([required library missing]))
-AX_CXX_CHECK_LIB([yaml], [YAML::LoadFile])
-
 # Checks for header files.
 AC_CHECK_HEADERS(ldap.h openvpn-plugin.h,,AC_MSG_ERROR([required header missing]))
 AC_LANG_PUSH([C++])
 AC_CHECK_HEADERS(yaml-cpp/yaml.h iostream fstream string stdexcept type_traits unordered_map list forward_list functional,,AC_MSG_ERROR([required header missing]))
+AC_LANG_POP([C++])
+
+# Checks for libraries.
+AC_SEARCH_LIBS([ldap_initialize], [ldap], , AC_MSG_ERROR([libldap missing]))
+AC_LANG_PUSH([C++])
+AX_CXX_CHECK_LIB(yaml-cpp, [main], ,AC_MSG_ERROR([libyaml-cpp missing]))
 AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
