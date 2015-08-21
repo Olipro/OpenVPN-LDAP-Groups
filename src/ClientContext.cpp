@@ -4,15 +4,13 @@
 #include "PluginContext.h"
 #include "ClientContext.h"
 
-const unordered_map<string,string> ClientContext::CIDR = 
-{ {"0", "0.0.0.0"}, {"1", "128.0.0.0"}, {"2", "192.0.0.0"}, {"3", "224.0.0.0"}, {"4", "240.0.0.0"},
-  {"5", "248.0.0.0"}, {"6", "252.0.0.0"}, {"7", "254.0.0.0"}, {"8", "255.0.0.0"},
-  {"9", "255.128.0.0"}, {"10", "255.192.0.0"}, {"11", "255.224.0.0"}, {"12", "255.240.0.0"},
-  {"13", "255.248.0.0"}, {"14", "255.252.0.0"}, {"15", "255.254.0.0"}, {"16", "255.255.0.0"},
-  {"17", "255.255.128.0"}, {"18", "255.255.192.0"}, {"19", "255.255.224.0"}, {"20", "255.255.240.0"},
-  {"21", "255.255.248.0"}, {"22", "255.255.252.0"}, {"23", "255.255.254.0"}, {"24", "255.255.255.0"},
-  {"25", "255.255.255.128"}, {"26", "255.255.255.192"}, {"27", "255.255.255.224"}, {"28", "255.255.255.240"},
-  {"29", "255.255.255.248"}, {"30", "255.255.255.252"}, {"31", "255.255.255.254"}, {"32", "255.255.255.255"}
+const string ClientContext::CIDR[] = { "0,0,0,0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0",
+				     "248.0.0.0", "252.0.0.0", "254.0.0.0", "255.0.0.0", "255.128.0.0",
+				     "255.192.0.0", "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0"
+				     "255.254.0.0", "255.255.0.0", "255.255.128.0", "255.255.192.0", "255.255.224.0"
+				     "255.255.240.0", "255.255.248.0", "255.255.252.0", "255.255.254.0", "255.255.255.0",
+				     "255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240", "255.255.255.248",
+				     "255.255.255.252", "255.255.255.254", "255.255.255.255"
 };
 
 ClientContext::ClientContext(const PluginContext& pCtx) : pluginCtx(pCtx) { }
@@ -21,7 +19,7 @@ int ClientContext::verifyUser(const char** const args)
 {
     try {
 	const auto& settings = pluginCtx.getSettings();
-	LDAPQuerier querier(settings.LDAPuri, settings.LDAPuserDN, settings.LDAPuserPW);
+	LDAPQuerier querier(settings.LDAPuris, settings.LDAPuserDN, settings.LDAPuserPW);
 	string filter = string(settings.LDAPusrFilter);
 	const string&& username = GetEnv("username", args);
 	pluginCtx.openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Verifying user: %s", username.c_str());
@@ -30,8 +28,10 @@ int ClientContext::verifyUser(const char** const args)
 	auto&& result = querier.GetObjects(settings.LDAPbaseDN, LDAP_SCOPE_SUBTREE, filter, { settings.LDAPgrpAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);
 	if (result.entries.empty() || result.entries.front().attribs.empty())
 	    return OPENVPN_PLUGIN_FUNC_ERROR;
-	LDAPQuerier(settings.LDAPuri, result.entries.front().dn, GetEnv("password", args)); //verify user
+	LDAPQuerier(settings.LDAPuris, result.entries.front().dn, GetEnv("password", args)); //verify user
 	return PopulateAllowedSubnets(querier, result, ofstream(pf_file, ofstream::out)) ? OPENVPN_PLUGIN_FUNC_SUCCESS : OPENVPN_PLUGIN_FUNC_ERROR;
+    } catch(runtime_error e) {
+	pluginCtx.openvpn_log(PLOG_ERR, PLUGIN_NAME, "Verify error: %s", e.what());
     } catch (...) { }
     return OPENVPN_PLUGIN_FUNC_ERROR;
 }
@@ -73,16 +73,25 @@ bool ClientContext::PopulateAllowedSubnets(LDAPQuerier& querier, LDAPObject& dat
 
 const string ClientContext::CIDRtoMask(string ip)
 {
-    const size_t subnet = ip.find("/");
-    const string& cidr = CIDR.at(ip.substr(subnet+1));
+    const size_t subnet = ip.rfind("/");
+    if (subnet == string::npos)
+	return CIDR[32];
+    unsigned char iCidr = 32;
+    try {
+	iCidr = stoi(ip.substr(subnet+1));
+    } catch (...) {
+    }
+    if (iCidr > 32)
+	return CIDR[32];
+    const string& cidr = CIDR[iCidr];
     return ip.replace(subnet, string::npos, " " + cidr);
 }
 
 const string ClientContext::GetEnv(const string& key, const char* const envp[])
 {
     long pos = FindEnv(key, envp);
-    auto&& elem = string(envp[pos]);
-    return pos != -1 ? elem.substr(elem.find('=') + 1, string::npos) : string();
+    string elem(envp[pos]);
+    return pos != -1 ? elem.substr(elem.find('=') + 1, string::npos) : "";
 }
 
 long ClientContext::FindEnv(const string& key, const char* const envp[])

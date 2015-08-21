@@ -52,10 +52,7 @@ int openvpn_plugin_func_v3(const int version, openvpn_plugin_args_func_in const 
       
       case OPENVPN_PLUGIN_CLIENT_CONNECT_V2:
 	  return client->configUser(args->envp, *ret);
-
-      default:
-	  self->openvpn_log(PLOG_ERR, PLUGIN_NAME, "Unknown check 0x%x", args->type);
-	  break;
     }
+    self->openvpn_log(PLOG_ERR, PLUGIN_NAME, "Unknown check 0x%x", args->type);
     return OPENVPN_PLUGIN_FUNC_ERROR;
 }

@@ -2,7 +2,7 @@ class ClientContext {
     const PluginContext& pluginCtx;
     string pf_file;
     vector<string> routes;
-    static const unordered_map<string,string> CIDR;
+    static const string CIDR[];
     const static string CIDRtoMask(string);
 public:
     ClientContext(const PluginContext&);

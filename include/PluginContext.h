@@ -2,7 +2,7 @@ class PluginContext
 {
 public:
       struct PluginSettings {
-	string LDAPuri;
+	vector<string> LDAPuris;
 	string LDAPuserDN;
 	string LDAPuserPW;
 	string LDAPbaseDN;
@@ -16,5 +16,6 @@ public:
     const PluginSettings& getSettings() const;
 private:
     PluginSettings settings;
-    static const string get(YAML::Node&, const string&&);
+    static string get(YAML::Node&, const string&&);
+    static vector<string> getVec(YAML::Node& cfg, const string&& key);
 };
