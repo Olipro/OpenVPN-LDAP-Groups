@@ -8,7 +8,7 @@ LDAPQuerier::LDAPQuerier(const string& uri, const string& dn, const string& pass
 {
     int result = tryBind(uri, dn, password);
     if (result != LDAP_SUCCESS)
-	this->~LDAPQuerier(), throw runtime_error((const char*)ldap_err2string(result));
+	throw runtime_error((const char*)ldap_err2string(result));
 }
 
 LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const string& password)
@@ -16,13 +16,7 @@ LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const str
     for (auto&& uri : uris)
 	if (tryBind(uri, dn, password) == LDAP_SUCCESS)
 	    return;
-    this->~LDAPQuerier();
     throw runtime_error("Failed to bind to any of the provided LDAP servers.");
-}
-
-LDAPQuerier::~LDAPQuerier()
-{
-    ldap_unbind_ext_s(ld, nullptr, nullptr);
 }
 
 int LDAPQuerier::tryBind(const string& uri, const string& dn, const string& password)
@@ -32,6 +26,7 @@ int LDAPQuerier::tryBind(const string& uri, const string& dn, const string& pass
     berval creds{password.length(), passwd.get()}, *srvCred;
 
     ldap_initialize(&ld, uri.c_str());
+    ldMgr.reset(ld);
     ldap_set_option(ld, LDAP_OPT_PROTOCOL_VERSION, &LDAPVersion);
     ldap_set_option(ld, LDAP_OPT_REFERRALS, LDAP_OPT_OFF); //Required for successful AD bind.
     ldap_set_option(ld, LDAP_OPT_NETWORK_TIMEOUT, &timeout);

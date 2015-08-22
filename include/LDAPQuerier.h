@@ -11,6 +11,7 @@ struct LDAPObject
 class LDAPQuerier
 {
     LDAP *ld;
+    unique_ptr<LDAP,function<void(LDAP*)>> ldMgr{nullptr, [](LDAP* ld) { ldap_unbind_ext_s(ld, nullptr, nullptr); }};
     LDAPMessage *query;
     static const int LDAPVersion;
     static const timeval timeout;
@@ -19,5 +20,4 @@ public:
     LDAPQuerier(const string&, const string&, const string&);
     LDAPQuerier(const vector<string>&, const string&, const string&);
     LDAPObject GetObjects(const string&, int, const string&, vector<const char*>&&, bool, timeval*, int);
-    ~LDAPQuerier();
 };
