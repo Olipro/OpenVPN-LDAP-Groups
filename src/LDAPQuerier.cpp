@@ -16,13 +16,13 @@ LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const str
     for (auto&& uri : uris)
 	if (tryBind(uri, dn, password) == LDAP_SUCCESS)
 	    return;
+    this->~LDAPQuerier();
     throw runtime_error("Failed to bind to any of the provided LDAP servers.");
 }
 
 LDAPQuerier::~LDAPQuerier()
 {
     ldap_unbind_ext_s(ld, nullptr, nullptr);
-    ldap_destroy(ld);
 }
 
 int LDAPQuerier::tryBind(const string& uri, const string& dn, const string& password)

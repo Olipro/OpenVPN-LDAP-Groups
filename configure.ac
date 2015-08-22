@@ -3,7 +3,20 @@
 
 AC_PREREQ([2.69])
 AC_INIT([OpenVPNLDAPGroups],[0.1],[oliver.d@prodege.com])
+
+# Debug option
+AC_ARG_ENABLE(debug, AS_HELP_STRING([--enable-debug], [enable debug compilation, default: no]),
+[case "${enableval}" in
+    yes) debug=true ;;
+    no)  debug=false ;;
+    *)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac], [debug=false])
+AS_IF([test x$debug = xtrue],[
+: ${CXXFLAGS="-flto -Wall -g"}
+], [
 : ${CXXFLAGS="-Ofast -flto -Wall"}
+])
+
 AC_CONFIG_SRCDIR([src/VPNPlugin.cpp])
 AC_CONFIG_HEADERS([include/config.h])
 AC_CONFIG_MACRO_DIR([m4/])

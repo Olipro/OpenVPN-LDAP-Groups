@@ -4,7 +4,7 @@
 #include "PluginContext.h"
 #include "ClientContext.h"
 
-const string ClientContext::CIDR[] = { "0,0,0,0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0",
+const array<string, 33> ClientContext::CIDR = { "0,0,0,0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0",
 				     "248.0.0.0", "252.0.0.0", "254.0.0.0", "255.0.0.0", "255.128.0.0",
 				     "255.192.0.0", "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0"
 				     "255.254.0.0", "255.255.0.0", "255.255.128.0", "255.255.192.0", "255.255.224.0"
@@ -71,20 +71,17 @@ bool ClientContext::PopulateAllowedSubnets(LDAPQuerier& querier, LDAPObject& dat
     return !routes.empty();
 }
 
-const string ClientContext::CIDRtoMask(string ip)
+string ClientContext::CIDRtoMask(string ip)
 {
     const size_t subnet = ip.rfind("/");
-    if (subnet == string::npos)
-	return CIDR[32];
     unsigned char iCidr = 32;
-    try {
-	iCidr = stoi(ip.substr(subnet+1));
-    } catch (...) {
-    }
-    if (iCidr > 32)
-	return CIDR[32];
-    const string& cidr = CIDR[iCidr];
-    return ip.replace(subnet, string::npos, " " + cidr);
+    if (subnet != string::npos)
+	try {
+	    if ((iCidr = stoi(ip.substr(subnet+1))) > 32)
+		iCidr = 32;
+	} catch (...) {
+	}
+    return ip.replace(subnet, string::npos, string(" ") + CIDR[iCidr]);
 }
 
 const string ClientContext::GetEnv(const string& key, const char* const envp[])
