@@ -2,11 +2,11 @@ class ClientContext {
     const PluginContext& pluginCtx;
     string pf_file;
     vector<string> routes;
-    static const array<string, 33> CIDR;
+    static const string CIDR[];
     static string CIDRtoMask(string);
 public:
     ClientContext(const PluginContext&);
-    static const string GetEnv(const string&, const char* const[]);
+    static string GetEnv(const string&, const char* const[]);
     static long FindEnv(const string&, const char* const[]);
     int verifyUser(const char** const);
     int configUser(const char** const, openvpn_plugin_args_func_return&);

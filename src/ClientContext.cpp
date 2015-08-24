@@ -4,10 +4,10 @@
 #include "PluginContext.h"
 #include "ClientContext.h"
 
-const array<string, 33> ClientContext::CIDR = { "0,0,0,0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0",
+const string ClientContext::CIDR[] { "0.0.0.0", "128.0.0.0", "192.0.0.0", "224.0.0.0", "240.0.0.0",
 				     "248.0.0.0", "252.0.0.0", "254.0.0.0", "255.0.0.0", "255.128.0.0",
-				     "255.192.0.0", "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0"
-				     "255.254.0.0", "255.255.0.0", "255.255.128.0", "255.255.192.0", "255.255.224.0"
+				     "255.192.0.0", "255.224.0.0", "255.240.0.0", "255.248.0.0", "255.252.0.0",
+				     "255.254.0.0", "255.255.0.0", "255.255.128.0", "255.255.192.0", "255.255.224.0",
 				     "255.255.240.0", "255.255.248.0", "255.255.252.0", "255.255.254.0", "255.255.255.0",
 				     "255.255.255.128", "255.255.255.192", "255.255.255.224", "255.255.255.240", "255.255.255.248",
 				     "255.255.255.252", "255.255.255.254", "255.255.255.255"
@@ -77,14 +77,13 @@ string ClientContext::CIDRtoMask(string ip)
     unsigned char iCidr = 32;
     if (subnet != string::npos)
 	try {
-	    if ((iCidr = stoi(ip.substr(subnet+1))) > 32)
-		iCidr = 32;
+	    iCidr = min<unsigned char>(stoi(ip.substr(subnet+1)), 32);
 	} catch (...) {
 	}
-    return ip.replace(subnet, string::npos, string(" ") + CIDR[iCidr]);
+    return ip.replace(subnet, string::npos, " " + CIDR[iCidr]);
 }
 
-const string ClientContext::GetEnv(const string& key, const char* const envp[])
+string ClientContext::GetEnv(const string& key, const char* const envp[])
 {
     long pos = FindEnv(key, envp);
     string elem(envp[pos]);
