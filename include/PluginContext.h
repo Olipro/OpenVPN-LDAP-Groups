@@ -9,6 +9,7 @@ public:
 	string LDAPusrFilter;
 	string LDAPgrpAttrib;
 	string LDAPipAttrib;
+	int LDAPtimeout;
 	vector<string> vpnSubnets;
     };
     plugin_log_t const openvpn_log;
@@ -16,6 +17,8 @@ public:
     const PluginSettings& getSettings() const;
 private:
     PluginSettings settings;
-    static string get(YAML::Node&, const string&&);
-    static vector<string> getVec(YAML::Node& cfg, const string&& key);
+    template <typename T>
+    static T get(YAML::Node&, const string&&);
+    template <typename T>
+    static T get(YAML::Node&, const string&&, T);
 };

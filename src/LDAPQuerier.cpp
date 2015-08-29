@@ -2,16 +2,15 @@
 #include "LDAPQuerier.h"
 
 const int LDAPQuerier::LDAPVersion = 3;
-const timeval LDAPQuerier::timeout = {2,0};
 
-LDAPQuerier::LDAPQuerier(const string& uri, const string& dn, const string& password)
+LDAPQuerier::LDAPQuerier(const string& uri, const string& dn, const string& password, const int timeout) : timeout{timeout, 0}
 {
     int result = tryBind(uri, dn, password);
     if (result != LDAP_SUCCESS)
 	throw runtime_error((const char*)ldap_err2string(result));
 }
 
-LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const string& password)
+LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const string& password, const int timeout) : timeout{timeout, 0}
 {
     for (auto&& uri : uris)
 	if (tryBind(uri, dn, password) == LDAP_SUCCESS)

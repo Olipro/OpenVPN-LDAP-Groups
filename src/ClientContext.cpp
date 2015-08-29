@@ -19,7 +19,7 @@ int ClientContext::verifyUser(const char** const args)
 {
     try {
 	const auto& settings = pluginCtx.getSettings();
-	LDAPQuerier querier(settings.LDAPuris, settings.LDAPuserDN, settings.LDAPuserPW);
+	LDAPQuerier querier(settings.LDAPuris, settings.LDAPuserDN, settings.LDAPuserPW, settings.LDAPtimeout);
 	string filter = string(settings.LDAPusrFilter);
 	const string&& username = GetEnv("username", args);
 	pluginCtx.openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Verifying user: %s", username.c_str());
@@ -28,7 +28,7 @@ int ClientContext::verifyUser(const char** const args)
 	auto&& result = querier.GetObjects(settings.LDAPbaseDN, LDAP_SCOPE_SUBTREE, filter, { settings.LDAPgrpAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);
 	if (result.entries.empty() || result.entries.front().attribs.empty())
 	    return OPENVPN_PLUGIN_FUNC_ERROR;
-	LDAPQuerier(settings.LDAPuris, result.entries.front().dn, GetEnv("password", args)); //verify user
+	LDAPQuerier(settings.LDAPuris, result.entries.front().dn, GetEnv("password", args), settings.LDAPtimeout); //verify user
 	return PopulateAllowedSubnets(querier, result, ofstream(pf_file, ofstream::out)) ? OPENVPN_PLUGIN_FUNC_SUCCESS : OPENVPN_PLUGIN_FUNC_ERROR;
     } catch(runtime_error e) {
 	pluginCtx.openvpn_log(PLOG_ERR, PLUGIN_NAME, "Verify error: %s", e.what());
