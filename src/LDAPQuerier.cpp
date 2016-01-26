@@ -12,10 +12,11 @@ LDAPQuerier::LDAPQuerier(const string& uri, const string& dn, const string& pass
 
 LDAPQuerier::LDAPQuerier(const vector<string>& uris, const string& dn, const string& password, const int timeout) : timeout{timeout, 0}
 {
+    int result;
     for (auto&& uri : uris)
-	if (tryBind(uri, dn, password) == LDAP_SUCCESS)
+	if ((result = tryBind(uri, dn, password)) == LDAP_SUCCESS)
 	    return;
-    throw runtime_error("Failed to bind to any of the provided LDAP servers on DN " + dn);
+    throw runtime_error(string(ldap_err2string(result)) + " DN " + dn);
 }
 
 int LDAPQuerier::tryBind(const string& uri, const string& dn, const string& password)
