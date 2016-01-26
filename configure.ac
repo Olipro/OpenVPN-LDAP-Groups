@@ -25,6 +25,18 @@ AM_INIT_AUTOMAKE
 AM_SILENT_RULES([yes])
 LT_INIT
 
+AC_PATH_PROG([GCC_AR], [gcc-ar], [no])
+AC_PATH_PROG([GCC_NM], [gcc-nm], [no])
+AC_PATH_PROG([GCC_RL], [gcc-ranlib], [no])
+
+AS_IF([test "$GCC_AR" = "no" || test "$GCC_NM" = "no" || test "$GCC_RL" = "no"], ,[
+AR="$GCC_AR"
+NM="$GCC_NM"
+RANLIB="$GCC_RL"
+AC_SUBST([AR])
+AC_SUBST([NM])
+AC_SUBST([RANLIB])])
+
 # Checks for programs.
 AC_PROG_CXX
 AX_CXX_COMPILE_STDCXX_11(, [mandatory])
