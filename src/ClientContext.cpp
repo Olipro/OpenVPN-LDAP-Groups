@@ -23,7 +23,7 @@ int ClientContext::verifyUser(const char** const args)
 	string filter = string(settings.LDAPusrFilter);
 	const string&& username = GetEnv("username", args);
 	pluginCtx.openvpn_log(PLOG_NOTE, PLUGIN_NAME, "Verifying user: %s", username.c_str());
-	for (auto u = filter.find("%u"); u != string::npos; u = filter.find("%u"))
+	for (auto u = filter.find("%u"); u != string::npos; u = filter.find("%u", u + username.length()))
 	    filter.replace(u, 2, username);
 	auto&& result = querier.GetObjects(settings.LDAPbaseDN, LDAP_SCOPE_SUBTREE, filter, { settings.LDAPgrpAttrib.c_str(), nullptr }, false, nullptr, LDAP_NO_LIMIT);
 	if (result.entries.empty() || result.entries.front().attribs.empty())
