@@ -1,0 +1,11 @@
+---
+config:
+  LDAPuri:              ['ldaps://path.to.server', 'ldap://192.0.2.1']
+  LDAPuserDN:           CN=Some Account,OU=Service Accounts,DC=yourdomain,DC=local
+  LDAPuserPW:           yourPassword
+  LDAPbaseDN:           DC=searchLocation,DC=goesHere
+  LDAPusrFilter:        (sAMAccountName=%u) #Active Directory uses this for usernames.
+  LDAPgrpAttrib:        memberOf #Same as above
+  LDAPipAttrib:         vpnSubnet #This is the attribute you need to manually define.
+  vpnSubnets:           [ 10.10.0.0/16, 10.0.0.0/16 ] #Manually defined subnets to apply to all connections regardless. Comment out or delete if undesired.
+
